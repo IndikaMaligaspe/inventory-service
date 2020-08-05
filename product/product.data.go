@@ -1,6 +1,7 @@
 package product
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/indikamaligaspe/inventoryservice/database"
 )
@@ -47,7 +49,9 @@ func loadProductMap() (map[int]Product, error) {
 }
 
 func getProduct(productID int) (*Product, error) {
-	row := database.DbConn.QueryRow(`SELECT 
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	row := database.DbConn.QueryRowContext(ctx, `SELECT 
 	productId, 
 	manufacturer, 
 	sku, 
@@ -76,7 +80,9 @@ func getProduct(productID int) (*Product, error) {
 }
 
 func getProductList() ([]Product, error) {
-	result, err := database.DbConn.Query(`SELECT 
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	result, err := database.DbConn.QueryContext(ctx, `SELECT 
 	productId, 
 	manufacturer, 
 	sku, 
